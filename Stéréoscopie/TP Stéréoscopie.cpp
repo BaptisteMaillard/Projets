@@ -35,7 +35,7 @@ int movierecord = FALSE;
 #define LORENZ             9
 #define TORUS              10
 #define TEAPOT	           11
-int modeltype = CUBE;
+int modeltype = LORENZ;
 
 
 /* Image(s) à afficher     */
