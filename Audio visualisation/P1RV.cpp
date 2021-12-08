@@ -198,6 +198,10 @@ GLvoid affichage() {
     if (audiotype != ancienAudiotype) {
         if(audiotype == HYMNE) bool played = PlaySound(L"HymneEuropeen.wav", NULL, SND_ASYNC);
         else if(audiotype == MEGAMAN) bool played=PlaySound(L"megaman_mono.wav", NULL, SND_ASYNC);
+        if (played != 1) {
+        cout << "ERROR: Le son n'est pas joué" << endl;
+        exit(EXIT_FAILURE);
+        }
         Sleep(20);
         int taille_audio = audio.frames();
         *ptr_max_increment = -1 + (taille_audio - N) / N;
