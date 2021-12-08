@@ -1,9 +1,10 @@
 //Peut-être faire en 3D
 //Jouer la musique en même temps
-//Peut-être inverser les couleurs ou laisser la possibilité de le faire
 //Pouvoir changer les audios
 //Peut-être ajouter une interface
 //Je me suis peut-être trompé dans les couleurs par rapport aux fréquences
+//Comment gérer le rythme de la visualisation : pk Hymne Européen va si vite
+//Pour améliorer : mettre un autre mode de visualisation genre des barres verticales
 
 
 #include <Windows.h>
@@ -32,9 +33,9 @@ int increment = 0;
 int audiotype = HYMNE;
 
 /* Mode de visualisation */
-#define MODE1              1
-#define MODE2              2
-int image = MODE1;
+#define MODE1                 1
+#define MODE2                 2
+int modetype = MODE1;
 
 
 
@@ -55,24 +56,24 @@ int next_pow_2(int x) {
 
 
 //string entree = "megaman_mono.wav";
-string entree = "HymneEuropeen.wav"; 
+string entree = "HymneEuropeen.wav";
 SndfileHandle audio = SndfileHandle(entree);
 int padded_length = next_pow_2(audio.frames());
 float* input_buffer = fftwf_alloc_real((size_t)padded_length + 2);
 int taille_audio = audio.frames();
 int max_increment = -1 + (taille_audio - N) / N;
-float duree_audio = audio.frames()/audio.samplerate();
-float timer = pow(10,3)*duree_audio/max_increment;
+float duree_audio = audio.frames() / audio.samplerate();
+float timer = pow(10, 3) * duree_audio / max_increment;
 
 
-
+   
 void Initialisation(string entree) {
 
-   // cout << "Appel des fichiers d'entrée" << endl;
-    //string entree = "megaman_mono.wav";
+    // cout << "Appel des fichiers d'entrée" << endl;
+     //string entree = "megaman_mono.wav";
 
-    //cout << "Conversion en objet soundfile" << endl;
-    //SndfileHandle audio = SndfileHandle(entree);
+     //cout << "Conversion en objet soundfile" << endl;
+     //SndfileHandle audio = SndfileHandle(entree);
     if (audio.channels() != 1) {
         cout << "ERROR: Only taking mono files for this example" << endl;
         exit(EXIT_FAILURE);
@@ -104,11 +105,11 @@ void Initialisation(string entree) {
 
 void vTimerIdle(int i)
 {
-    
-    
-    if(increment<max_increment) increment++;
+
+
+    if (increment < max_increment) increment++;
     else {
-        cout<< "L'écoute est finie" << endl;
+        cout << "L'écoute est finie" << endl;
         exit(0);
     }
     glutPostRedisplay();
@@ -135,14 +136,19 @@ void HandleMainMenu(int whichone)
 /*
    Handle the audio menu
 */
-void HandleModelMenu(int whichone)
+void HandleAudioMenu(int whichone)
 {
     audiotype = whichone;
 }
 
+/*
+   Handle the mode menu
+*/
+void HandleModeMenu(int whichone)
+{
+    modetype = whichone;
+}
 
-// Quelques variables globales (c'est pas bien)
-GLfloat pointSize = 1.0f;
 
 // Déclarations des fonctions de rappel (callbacks)
 GLvoid affichage();
@@ -175,23 +181,26 @@ int main(int argc, char* argv[])
     glutKeyboardFunc(clavier);
 
 
-    glutTimerFunc(timer, vTimerIdle, 1); 
+    glutTimerFunc(timer, vTimerIdle, 1);
 
 
 
     /* Set up the audio menu */
-    audiomenu = glutCreateMenu(HandleModelMenu);
+    audiomenu = glutCreateMenu(HandleAudioMenu);
     glutAddMenuEntry("Hymne europeen", HYMNE);
     glutAddMenuEntry("Megaman", MEGAMAN);
 
+    /* Set up the mode menu */
+    modemenu = glutCreateMenu(HandleModeMenu);
+    glutAddMenuEntry("Mode 1", MODE1);
+    glutAddMenuEntry("Mode 2", MODE2);
 
-
-    /* Set up the main menu 
+    /* Set up the main menu*/
     mainmenu = glutCreateMenu(HandleMainMenu);
     glutAddSubMenu("Mode", modemenu);
     glutAddSubMenu("Audio", audiomenu);
     glutAddMenuEntry("Quit", 9);
-    glutAttachMenu(GLUT_RIGHT_BUTTON);*/
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
 
 
     // Lancement de la boucle infinie GLUT
@@ -209,18 +218,18 @@ GLvoid affichage() {
 
     float* input_buf = fftwf_alloc_real((size_t)N);
     for (int i = 0; i < N; i++) {
-        input_buf[i] = input_buffer[i + N * increment] ;
+        input_buf[i] = input_buffer[i + N * increment];
     }
-    
+
 
     //cout << "Creation du FFT plan" << endl;
     float* output_buf = fftwf_alloc_real((size_t)N);
     fftwf_plan in_plan = fftwf_plan_dft_r2c_1d(N, input_buf, (fftwf_complex*)output_buf,
         FFTW_ESTIMATE);
-    
-   // cout << "Execution" << endl;
+
+    // cout << "Execution" << endl;
     fftwf_execute(in_plan);
-    
+
 
 
     float moyenne[8] = { 0,0,0,0,0,0,0,0 };//contient les moyennes des amplitudes pour les 8 plages
@@ -257,86 +266,87 @@ GLvoid affichage() {
 
     GLUquadric* quadric = gluNewQuadric();
 
-    //Ici bleu au centre et rouge aux extrémités
-    for (int k = 0; k < 8; k++) {
-        switch ((int)max[k][0])
-        {
-        case 0:
-            glColor3ub(255, 0, 0); // rouge
-            gluCylinder(quadric, 0.8, 0.9, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 1:
-            glColor3ub(255, 165, 0); // orange
-            gluCylinder(quadric, 0.7, 0.8, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 2:
-            glColor3ub(255, 255, 0); // jaune
-            gluCylinder(quadric, 0.6, 0.7, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 3:
-            glColor3ub(0, 255, 0); // vert
-            gluCylinder(quadric, 0.5, 0.6, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 4:
-            glColor3ub(23, 101, 125); // bleu-vert
-            gluCylinder(quadric, 0.4, 0.5, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 5:
-            glColor3ub(0, 0, 255); // bleu
-            gluCylinder(quadric, 0.3, 0.4, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 6:
-            glColor3ub(127, 0, 255); // violet
-            gluCylinder(quadric, 0.2, 0.3, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 7:
-            glColor3ub(139, 0, 139); // mauve
-            gluCylinder(quadric, 0.1, 0.2, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
+
+    if (modetype ==MODE1) {
+        //Ici bleu au centre et rouge aux extrémités
+        for (int k = 0; k < 8; k++) {
+            switch ((int)max[k][0])
+            {
+            case 0:
+                glColor3ub(255, 0, 0); // rouge
+                gluCylinder(quadric, 0.8, 0.9, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 1:
+                glColor3ub(255, 165, 0); // orange
+                gluCylinder(quadric, 0.7, 0.8, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 2:
+                glColor3ub(255, 255, 0); // jaune
+                gluCylinder(quadric, 0.6, 0.7, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 3:
+                glColor3ub(0, 255, 0); // vert
+                gluCylinder(quadric, 0.5, 0.6, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 4:
+                glColor3ub(23, 101, 125); // bleu-vert
+                gluCylinder(quadric, 0.4, 0.5, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 5:
+                glColor3ub(0, 0, 255); // bleu
+                gluCylinder(quadric, 0.3, 0.4, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 6:
+                glColor3ub(127, 0, 255); // violet
+                gluCylinder(quadric, 0.2, 0.3, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 7:
+                glColor3ub(139, 0, 139); // mauve
+                gluCylinder(quadric, 0.1, 0.2, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            }
         }
     }
-
-
-    //Ici rouge au centre et bleu aux extrémités
-   /* for (int k = 0; k < 8; k++) {
-        switch ((int)max[k][0])
-        {
-        case 0:
-            glColor3ub(139, 0, 139); // mauve
-            gluCylinder(quadric, 0.8, 0.9, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 1:
-            glColor3ub(127, 0, 255); // violet
-            gluCylinder(quadric, 0.7, 0.8, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 2:
-            glColor3ub(0, 0, 255); // bleu
-            gluCylinder(quadric, 0.6, 0.7, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 3:
-            glColor3ub(23, 101, 125); // bleu-vert
-            gluCylinder(quadric, 0.5, 0.6, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 4:
-            glColor3ub(0, 255, 0); // vert
-            gluCylinder(quadric, 0.4, 0.5, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 5:
-            glColor3ub(255, 255, 0); // jaune
-            gluCylinder(quadric, 0.3, 0.4, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 6:
-            glColor3ub(255, 165, 0); // orange
-            gluCylinder(quadric, 0.2, 0.3, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
-        case 7:
-            glColor3ub(255, 0, 0); // rouge
-            gluCylinder(quadric, 0.1, 0.2, 2 - max[k][1] / max[0][1], 50, 50);
-            break;
+    else {
+        //Ici rouge au centre et bleu aux extrémités
+        for (int k = 0; k < 8; k++) {
+           switch ((int)max[k][0])
+           {
+           case 0:
+               glColor3ub(139, 0, 139); // mauve
+               gluCylinder(quadric, 0.8, 0.9, 2 - max[k][1] / max[0][1], 50, 50);
+               break;
+           case 1:
+               glColor3ub(127, 0, 255); // violet
+               gluCylinder(quadric, 0.7, 0.8, 2 - max[k][1] / max[0][1], 50, 50);
+               break;
+           case 2:
+               glColor3ub(0, 0, 255); // bleu
+               gluCylinder(quadric, 0.6, 0.7, 2 - max[k][1] / max[0][1], 50, 50);
+               break;
+           case 3:
+               glColor3ub(23, 101, 125); // bleu-vert
+               gluCylinder(quadric, 0.5, 0.6, 2 - max[k][1] / max[0][1], 50, 50);
+               break;
+           case 4:
+               glColor3ub(0, 255, 0); // vert
+               gluCylinder(quadric, 0.4, 0.5, 2 - max[k][1] / max[0][1], 50, 50);
+               break;
+           case 5:
+               glColor3ub(255, 255, 0); // jaune
+               gluCylinder(quadric, 0.3, 0.4, 2 - max[k][1] / max[0][1], 50, 50);
+               break;
+           case 6:
+               glColor3ub(255, 165, 0); // orange
+               gluCylinder(quadric, 0.2, 0.3, 2 - max[k][1] / max[0][1], 50, 50);
+               break;
+           case 7:
+               glColor3ub(255, 0, 0); // rouge
+               gluCylinder(quadric, 0.1, 0.2, 2 - max[k][1] / max[0][1], 50, 50);
+               break;
+           }
         }
-
-    }*/
-
+    }
     glFlush();
 }
 
@@ -377,5 +387,4 @@ GLvoid clavier(unsigned char touche, int x, int y) {
     // Demande a GLUT de reafficher la scene
     glutPostRedisplay();
 }
-
 
