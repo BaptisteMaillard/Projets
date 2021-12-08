@@ -5,6 +5,11 @@
 //Je me suis peut-être trompé dans les couleurs par rapport aux fréquences
 //Comment gérer le rythme de la visualisation : pk Hymne Européen va si vite
 //Pour améliorer : mettre un autre mode de visualisation genre des barres verticales
+//Marquer des pauses quand on change de musique
+//Indiquer quelle chanson est jouée dans l'interface
+//bouton strat, stop et restart
+//Pk il faut mettre un cout absolument à la ligne 71?????
+//Mettre un délai avant de lancer la visualisation
 
 
 #include <Windows.h>
@@ -30,14 +35,18 @@ int increment = 0;
 /* Liste d'audio */
 #define HYMNE                 1
 #define MEGAMAN               2
-int audiotype = HYMNE;
+int audiotype = MEGAMAN;
+int ancienAudiotype = 0;
 
 /* Mode de visualisation */
 #define MODE1                 1
 #define MODE2                 2
 int modetype = MODE1;
 
-
+float timer=0.;
+float* ptr_timer=&timer;
+int max_increment=100;
+int *ptr_max_increment=&max_increment ;
 
 
 // Helper function to find next power of 2 using bit twiddling
@@ -55,65 +64,19 @@ int next_pow_2(int x) {
 
 
 
-//string entree = "megaman_mono.wav";
-string entree = "HymneEuropeen.wav";
-SndfileHandle audio = SndfileHandle(entree);
-int padded_length = next_pow_2(audio.frames());
-float* input_buffer = fftwf_alloc_real((size_t)padded_length + 2);
-int taille_audio = audio.frames();
-int max_increment = -1 + (taille_audio - N) / N;
-float duree_audio = audio.frames() / audio.samplerate();
-float timer = pow(10, 3) * duree_audio / max_increment;
 
-
-   
-void Initialisation(string entree) {
-
-    // cout << "Appel des fichiers d'entrée" << endl;
-     //string entree = "megaman_mono.wav";
-
-     //cout << "Conversion en objet soundfile" << endl;
-     //SndfileHandle audio = SndfileHandle(entree);
-    if (audio.channels() != 1) {
-        cout << "ERROR: Only taking mono files for this example" << endl;
-        exit(EXIT_FAILURE);
-    }
-
-    cout << "------------------------------------------------------------" << endl;
-    cout << "Donnees de l'audio :" << endl;
-    cout << "------------------------------------------------------------" << endl;
-    cout << "Taille de l'audio : " << audio.frames() << endl;
-    cout << "Frequence d'echantillonnage : " << audio.samplerate() << " Hz" << endl;
-    cout << "Duree de l'audio : " << duree_audio << " secondes" << endl;
-
-
-
-    //int padded_length = next_pow_2(audio.frames());
-    //cout << "Creation d'une ARRAY FFTW3. Adding 2 to do in-place FFT" << endl;
-    //float* input_buffer = fftwf_alloc_real((size_t)padded_length + 2);
-
-   // cout << "On remplit l'ARRAY avec l'audio" << endl;
-    audio.readf(input_buffer, audio.frames());
-    for (int i = audio.frames(); i < padded_length; i++) {
-        input_buffer[i] = 0.0f;
-    }
-
-
-
-}
 
 
 void vTimerIdle(int i)
 {
-
-
-    if (increment < max_increment) increment++;
+    cout << endl;
+    if (increment < *ptr_max_increment) increment++;
     else {
-        cout << "L'écoute est finie" << endl;
+        cout << "L'ecoute est finie" << endl;
         exit(0);
     }
     glutPostRedisplay();
-    glutTimerFunc(timer, vTimerIdle, i);    // On choisit un timer de 25ms
+    glutTimerFunc(*ptr_timer, vTimerIdle, i);    // On choisit un timer de 25ms
 }
 
 float valeurAbsolue(float f) {
@@ -174,14 +137,12 @@ int main(int argc, char* argv[])
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 
-    Initialisation(entree);
-
     // Définition des fonctions de callbacks
     glutDisplayFunc(affichage);
     glutKeyboardFunc(clavier);
 
 
-    glutTimerFunc(timer, vTimerIdle, 1);
+    glutTimerFunc(*ptr_timer, vTimerIdle, 1);
 
 
 
@@ -215,6 +176,48 @@ GLvoid affichage() {
     glClear(GL_COLOR_BUFFER_BIT);
     //glMatrixMode(GL_MODELVIEW);
 
+    string entree;
+    if (audiotype == HYMNE) {
+        entree = "HymneEuropeen.wav";
+    }
+    else if(audiotype == MEGAMAN) {
+        entree = "megaman_mono.wav";
+    }
+    
+    SndfileHandle audio = SndfileHandle(entree);
+    if (audio.channels() != 1) {
+        cout << "ERROR: Only taking mono files for this example" << endl;
+        exit(EXIT_FAILURE);
+    }
+    int padded_length = next_pow_2(audio.frames());
+    //Creation d'une ARRAY FFTW3. Adding 2 to do in-place FFT
+    float* input_buffer = fftwf_alloc_real((size_t)padded_length + 2);
+    
+    if (audiotype != ancienAudiotype) {
+        if(audiotype == HYMNE) bool played = PlaySound(L"HymneEuropeen.wav", NULL, SND_ASYNC);
+        else if(audiotype == MEGAMAN) bool played=PlaySound(L"megaman_mono.wav", NULL, SND_ASYNC);
+        Sleep(20);
+        int taille_audio = audio.frames();
+        *ptr_max_increment = -1 + (taille_audio - N) / N;
+        float duree_audio = audio.frames() / audio.samplerate();
+        *ptr_timer = pow(10, 3) * duree_audio / *ptr_max_increment;
+
+        cout << "------------------------------------------------------------" << endl;
+        cout << "Donnees de l'audio :" << endl;
+        cout << "------------------------------------------------------------" << endl;
+        cout << "Taille de l'audio : " << audio.frames() << endl;
+        cout << "Frequence d'echantillonnage : " << audio.samplerate() << " Hz" << endl;
+        cout << "Duree de l'audio : " << duree_audio << " secondes" << endl;
+    }
+    
+
+
+   // On remplit l'ARRAY avec l'audio
+    audio.readf(input_buffer, audio.frames());
+    for (int i = audio.frames(); i < padded_length; i++) {
+        input_buffer[i] = 0.0f;
+    }
+
 
     float* input_buf = fftwf_alloc_real((size_t)N);
     for (int i = 0; i < N; i++) {
@@ -222,12 +225,12 @@ GLvoid affichage() {
     }
 
 
-    //cout << "Creation du FFT plan" << endl;
+    //Creation du FFT plan
     float* output_buf = fftwf_alloc_real((size_t)N);
     fftwf_plan in_plan = fftwf_plan_dft_r2c_1d(N, input_buf, (fftwf_complex*)output_buf,
         FFTW_ESTIMATE);
 
-    // cout << "Execution" << endl;
+    //Execution
     fftwf_execute(in_plan);
 
 
@@ -347,6 +350,7 @@ GLvoid affichage() {
            }
         }
     }
+    ancienAudiotype = audiotype;
     glFlush();
 }
 
