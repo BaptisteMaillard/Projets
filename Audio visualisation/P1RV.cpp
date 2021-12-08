@@ -10,7 +10,9 @@
 //bouton strat, stop et restart
 //Pk il faut mettre un cout absolument à la ligne 71?????
 //Mettre un délai avant de lancer la visualisation
-
+//Laissez le choix de la première musique
+//Mettre un délai avant de lancer la visualisation
+//Amélioration : aller chercher ou faire un drag and drope à partir des dossiers
 
 #include <Windows.h>
 #include <iostream>
@@ -76,7 +78,7 @@ void vTimerIdle(int i)
         exit(0);
     }
     glutPostRedisplay();
-    glutTimerFunc(*ptr_timer, vTimerIdle, i);    // On choisit un timer de 25ms
+    glutTimerFunc(*ptr_timer, vTimerIdle, i);    
 }
 
 float valeurAbsolue(float f) {
@@ -146,17 +148,17 @@ int main(int argc, char* argv[])
 
 
 
-    /* Set up the audio menu */
+    // Set up the audio menu
     audiomenu = glutCreateMenu(HandleAudioMenu);
     glutAddMenuEntry("Hymne europeen", HYMNE);
     glutAddMenuEntry("Megaman", MEGAMAN);
 
-    /* Set up the mode menu */
+    // Set up the mode menu 
     modemenu = glutCreateMenu(HandleModeMenu);
     glutAddMenuEntry("Mode 1", MODE1);
     glutAddMenuEntry("Mode 2", MODE2);
 
-    /* Set up the main menu*/
+    // Set up the main menu
     mainmenu = glutCreateMenu(HandleMainMenu);
     glutAddSubMenu("Mode", modemenu);
     glutAddSubMenu("Audio", audiomenu);
