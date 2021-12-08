@@ -359,28 +359,9 @@ GLvoid clavier(unsigned char touche, int x, int y) {
 
     // Suivant les touches pressees, nous aurons un comportement different de l'application
     // ESCAPE ou 'q' : fermera l'application
-    // 'p' : affichage du carre plein
-    // 'f' : affichage du carre en fil de fer
-    // 's' : affichage des sommets du carre
+
 
     switch (touche) {
-    case 'p': // carre plein
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        break;
-    case 'f': // fil de fer
-
-        break;
-    case 's': // sommets du carre
-
-        break;
-
-    case '+':
-        // Augmenter la taille des sommets affiches
-        break;
-    case '-':
-        // Diminuer la taille des sommets affiches
-        break;
-
 
     case 'q': // quitter
     case 27:
