@@ -196,6 +196,7 @@ GLvoid affichage() {
     float* input_buffer = fftwf_alloc_real((size_t)padded_length + 2);
     
     if (audiotype != ancienAudiotype) {
+        bool played=0;
         if(audiotype == HYMNE) bool played = PlaySound(L"HymneEuropeen.wav", NULL, SND_ASYNC);
         else if(audiotype == MEGAMAN) bool played=PlaySound(L"megaman_mono.wav", NULL, SND_ASYNC);
         if (played != 1) {
