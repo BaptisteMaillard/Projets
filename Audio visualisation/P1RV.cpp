@@ -2,7 +2,6 @@
 //Jouer la musique en même temps
 //Pouvoir changer les audios
 //Peut-être ajouter une interface
-//Je me suis peut-être trompé dans les couleurs par rapport aux fréquences
 //Comment gérer le rythme de la visualisation : pk Hymne Européen va si vite
 //Pour améliorer : mettre un autre mode de visualisation genre des barres verticales
 //Marquer des pauses quand on change de musique
@@ -31,7 +30,7 @@ using namespace std;
 #include <GL/gl.h>
 #endif
 
-#define N 512
+#define N 1024
 int increment = 0;
 
 /* Liste d'audio */
@@ -45,10 +44,10 @@ int ancienAudiotype = 0;
 #define MODE2                 2
 int modetype = MODE1;
 
-float timer=0.;
-float* ptr_timer=&timer;
-int max_increment=100;
-int *ptr_max_increment=&max_increment ;
+float timer = 0.;
+float* ptr_timer = &timer;
+int max_increment = 100;
+int* ptr_max_increment = &max_increment;
 
 
 // Helper function to find next power of 2 using bit twiddling
@@ -78,7 +77,7 @@ void vTimerIdle(int i)
         exit(0);
     }
     glutPostRedisplay();
-    glutTimerFunc(*ptr_timer, vTimerIdle, i);    
+    glutTimerFunc(*ptr_timer, vTimerIdle, i);
 }
 
 float valeurAbsolue(float f) {
@@ -182,10 +181,10 @@ GLvoid affichage() {
     if (audiotype == HYMNE) {
         entree = "HymneEuropeen.wav";
     }
-    else if(audiotype == MEGAMAN) {
+    else if (audiotype == MEGAMAN) {
         entree = "megaman_mono.wav";
     }
-    
+
     SndfileHandle audio = SndfileHandle(entree);
     if (audio.channels() != 1) {
         cout << "ERROR: Only taking mono files for this example" << endl;
@@ -194,14 +193,14 @@ GLvoid affichage() {
     int padded_length = next_pow_2(audio.frames());
     //Creation d'une ARRAY FFTW3. Adding 2 to do in-place FFT
     float* input_buffer = fftwf_alloc_real((size_t)padded_length + 2);
-    
+
     if (audiotype != ancienAudiotype) {
-        bool played=0;
-        if(audiotype == HYMNE) played = PlaySound(L"HymneEuropeen.wav", NULL, SND_ASYNC);
-        else if(audiotype == MEGAMAN) played=PlaySound(L"megaman_mono.wav", NULL, SND_ASYNC);
+        bool played = 0;
+        if (audiotype == HYMNE) played = PlaySound(L"HymneEuropeen.wav", NULL, SND_ASYNC);
+        else if (audiotype == MEGAMAN) played = PlaySound(L"megaman_mono.wav", NULL, SND_ASYNC);
         if (played != 1) {
-        cout << "ERROR: Le son n'est pas joué" << endl;
-        exit(EXIT_FAILURE);
+            cout << "ERROR: Le son n'est pas joué" << endl;
+            exit(EXIT_FAILURE);
         }
         Sleep(20);
         int taille_audio = audio.frames();
@@ -216,10 +215,10 @@ GLvoid affichage() {
         cout << "Frequence d'echantillonnage : " << audio.samplerate() << " Hz" << endl;
         cout << "Duree de l'audio : " << duree_audio << " secondes" << endl;
     }
-    
 
 
-   // On remplit l'ARRAY avec l'audio
+
+    // On remplit l'ARRAY avec l'audio
     audio.readf(input_buffer, audio.frames());
     for (int i = audio.frames(); i < padded_length; i++) {
         input_buffer[i] = 0.0f;
@@ -257,7 +256,7 @@ GLvoid affichage() {
         max[k][0] = k;
         max[k][1] = moyenne[k];
     }
-    //max contient l'indice et la valeur ranger par ordre décroissant par rapport à la valeur de l'amplitude
+    //max contient l'indice et la valeur rangée par ordre décroissant par rapport à la valeur de l'amplitude
 
     int temp[2];
     for (int i = 0; i < 7; i++) {
@@ -277,8 +276,8 @@ GLvoid affichage() {
     GLUquadric* quadric = gluNewQuadric();
 
 
-    if (modetype ==MODE1) {
-        //Ici bleu au centre et rouge aux extrémités
+    if (modetype == MODE1) {
+        //Ici bleu (HF) au centre et rouge (BF) aux extrémités
         for (int k = 0; k < 8; k++) {
             switch ((int)max[k][0])
             {
@@ -318,50 +317,50 @@ GLvoid affichage() {
         }
     }
     else {
-        //Ici rouge au centre et bleu aux extrémités
+        //Ici rouge (HF) au centre et bleu (BF) aux extrémités
         for (int k = 0; k < 8; k++) {
-           switch ((int)max[k][0])
-           {
-           case 0:
-               glColor3ub(139, 0, 139); // mauve
-               gluCylinder(quadric, 0.8, 0.9, 2 - max[k][1] / max[0][1], 50, 50);
-               break;
-           case 1:
-               glColor3ub(127, 0, 255); // violet
-               gluCylinder(quadric, 0.7, 0.8, 2 - max[k][1] / max[0][1], 50, 50);
-               break;
-           case 2:
-               glColor3ub(0, 0, 255); // bleu
-               gluCylinder(quadric, 0.6, 0.7, 2 - max[k][1] / max[0][1], 50, 50);
-               break;
-           case 3:
-               glColor3ub(23, 101, 125); // bleu-vert
-               gluCylinder(quadric, 0.5, 0.6, 2 - max[k][1] / max[0][1], 50, 50);
-               break;
-           case 4:
-               glColor3ub(0, 255, 0); // vert
-               gluCylinder(quadric, 0.4, 0.5, 2 - max[k][1] / max[0][1], 50, 50);
-               break;
-           case 5:
-               glColor3ub(255, 255, 0); // jaune
-               gluCylinder(quadric, 0.3, 0.4, 2 - max[k][1] / max[0][1], 50, 50);
-               break;
-           case 6:
-               glColor3ub(255, 165, 0); // orange
-               gluCylinder(quadric, 0.2, 0.3, 2 - max[k][1] / max[0][1], 50, 50);
-               break;
-           case 7:
-               glColor3ub(255, 0, 0); // rouge
-               gluCylinder(quadric, 0.1, 0.2, 2 - max[k][1] / max[0][1], 50, 50);
-               break;
-           }
+            switch ((int)max[k][0])
+            {
+            case 0:
+                glColor3ub(255, 0, 0); // rouge
+                gluCylinder(quadric, 0.1, 0.2, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 1:
+                glColor3ub(255, 165, 0); // orange
+                gluCylinder(quadric, 0.2, 0.3, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 2:
+                glColor3ub(255, 255, 0); // jaune
+                gluCylinder(quadric, 0.3, 0.4, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 3:
+                glColor3ub(0, 255, 0); // vert
+                gluCylinder(quadric, 0.4, 0.5, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 4:
+                glColor3ub(23, 101, 125); // bleu-vert
+                gluCylinder(quadric, 0.5, 0.6, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 5:
+                glColor3ub(0, 0, 255); // bleu
+                gluCylinder(quadric, 0.6, 0.7, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 6:
+                glColor3ub(127, 0, 255); // violet
+                gluCylinder(quadric, 0.7, 0.8, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            case 7:
+                glColor3ub(139, 0, 139); // mauve
+                gluCylinder(quadric, 0.8, 0.9, 2 - max[k][1] / max[0][1], 50, 50);
+                break;
+            }
         }
     }
     ancienAudiotype = audiotype;
     glFlush();
 }
 
-// Definition de la fonction gerant les interruptions clavier
+// Definition de la fonction gérant les interruptions clavier
 GLvoid clavier(unsigned char touche, int x, int y) {
 
     // Suivant les touches pressees, nous aurons un comportement different de l'application
@@ -379,4 +378,3 @@ GLvoid clavier(unsigned char touche, int x, int y) {
     // Demande a GLUT de reafficher la scene
     glutPostRedisplay();
 }
-
