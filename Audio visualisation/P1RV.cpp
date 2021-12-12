@@ -12,6 +12,7 @@
 //Laissez le choix de la première musique
 //Mettre un délai avant de lancer la visualisation
 //Amélioration : aller chercher ou faire un drag and drope à partir des dossiers
+//Changer les cylindre en disque
 
 #include <Windows.h>
 #include <iostream>
@@ -283,35 +284,35 @@ GLvoid affichage() {
             {
             case 0:
                 glColor3ub(255, 0, 0); // rouge
-                gluCylinder(quadric, 0.8, 0.9, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.8, 0.9, 2. - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 1:
                 glColor3ub(255, 165, 0); // orange
-                gluCylinder(quadric, 0.7, 0.8, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.7, 0.8, 2. - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 2:
                 glColor3ub(255, 255, 0); // jaune
-                gluCylinder(quadric, 0.6, 0.7, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.6, 0.7, 2. - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 3:
                 glColor3ub(0, 255, 0); // vert
-                gluCylinder(quadric, 0.5, 0.6, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.5, 0.6, 2. - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 4:
                 glColor3ub(23, 101, 125); // bleu-vert
-                gluCylinder(quadric, 0.4, 0.5, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.4, 0.5, 2. - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 5:
                 glColor3ub(0, 0, 255); // bleu
-                gluCylinder(quadric, 0.3, 0.4, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.3, 0.4, 2. - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 6:
                 glColor3ub(127, 0, 255); // violet
-                gluCylinder(quadric, 0.2, 0.3, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.2, 0.3, 2. - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 7:
                 glColor3ub(139, 0, 139); // mauve
-                gluCylinder(quadric, 0.1, 0.2, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.1, 0.2, 2. - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             }
         }
@@ -323,35 +324,35 @@ GLvoid affichage() {
             {
             case 0:
                 glColor3ub(255, 0, 0); // rouge
-                gluCylinder(quadric, 0.1, 0.2, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.1, 0.2, 2 - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 1:
                 glColor3ub(255, 165, 0); // orange
-                gluCylinder(quadric, 0.2, 0.3, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.2, 0.3, 2 - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 2:
                 glColor3ub(255, 255, 0); // jaune
-                gluCylinder(quadric, 0.3, 0.4, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.3, 0.4, 2 - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 3:
                 glColor3ub(0, 255, 0); // vert
-                gluCylinder(quadric, 0.4, 0.5, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.4, 0.5, 2 - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 4:
                 glColor3ub(23, 101, 125); // bleu-vert
-                gluCylinder(quadric, 0.5, 0.6, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.5, 0.6, 2 - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 5:
                 glColor3ub(0, 0, 255); // bleu
-                gluCylinder(quadric, 0.6, 0.7, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.6, 0.7, 2 - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 6:
                 glColor3ub(127, 0, 255); // violet
-                gluCylinder(quadric, 0.7, 0.8, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.7, 0.8, 2 - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             case 7:
                 glColor3ub(139, 0, 139); // mauve
-                gluCylinder(quadric, 0.8, 0.9, 2 - max[k][1] / max[0][1], 50, 50);
+                gluCylinder(quadric, 0.8, 0.9, 2 - float(max[k][1] / max[0][1]), 50, 50);
                 break;
             }
         }
