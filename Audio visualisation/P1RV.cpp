@@ -37,7 +37,8 @@ int increment = 0;
 /* Liste d'audio */
 #define HYMNE                 1
 #define MEGAMAN               2
-int audiotype = MEGAMAN;
+#define TIME_LAPS             3
+int audiotype = TIME_LAPS;
 int ancienAudiotype = 0;
 
 /* Mode de visualisation */
@@ -65,20 +66,17 @@ int next_pow_2(int x) {
 
 
 
-
-
-
-
 void vTimerIdle(int i)
 {
-    cout << endl;
+    if(increment==1) cout << "C'est parti !" << endl;
     if (increment < *ptr_max_increment) increment++;
     else {
         cout << "L'ecoute est finie" << endl;
         exit(0);
     }
+    //cout << increment << endl;
     glutPostRedisplay();
-    glutTimerFunc(*ptr_timer, vTimerIdle, i);
+    glutTimerFunc((int)*ptr_timer, vTimerIdle, i);
 }
 
 float valeurAbsolue(float f) {
@@ -144,7 +142,7 @@ int main(int argc, char* argv[])
     glutKeyboardFunc(clavier);
 
 
-    glutTimerFunc(*ptr_timer, vTimerIdle, 1);
+    glutTimerFunc((int)*ptr_timer, vTimerIdle, 1);
 
 
 
@@ -152,6 +150,7 @@ int main(int argc, char* argv[])
     audiomenu = glutCreateMenu(HandleAudioMenu);
     glutAddMenuEntry("Hymne europeen", HYMNE);
     glutAddMenuEntry("Megaman", MEGAMAN);
+    glutAddMenuEntry("Time Laps", TIME_LAPS);
 
     // Set up the mode menu 
     modemenu = glutCreateMenu(HandleModeMenu);
@@ -185,13 +184,16 @@ GLvoid affichage() {
     else if (audiotype == MEGAMAN) {
         entree = "megaman_mono.wav";
     }
-
+    else if (audiotype == TIME_LAPS) {
+        entree = "Time Lapse.wav";
+    }
+    
     SndfileHandle audio = SndfileHandle(entree);
     if (audio.channels() != 1) {
-        cout << "ERROR: Only taking mono files for this example" << endl;
+        cout << "ERROR: Only taking mono files" << endl;
         exit(EXIT_FAILURE);
     }
-    int padded_length = next_pow_2(audio.frames());
+    int padded_length = next_pow_2((int)audio.frames());
     //Creation d'une ARRAY FFTW3. Adding 2 to do in-place FFT
     float* input_buffer = fftwf_alloc_real((size_t)padded_length + 2);
 
@@ -199,29 +201,31 @@ GLvoid affichage() {
         bool played = 0;
         if (audiotype == HYMNE) played = PlaySound(L"HymneEuropeen.wav", NULL, SND_ASYNC);
         else if (audiotype == MEGAMAN) played = PlaySound(L"megaman_mono.wav", NULL, SND_ASYNC);
+        else if (audiotype == TIME_LAPS) played = PlaySound(L"Time Lapse.wav", NULL, SND_ASYNC);
         if (played != 1) {
             cout << "ERROR: Le son n'est pas joué" << endl;
             exit(EXIT_FAILURE);
         }
         Sleep(20);
-        int taille_audio = audio.frames();
-        *ptr_max_increment = -1 + (taille_audio - N) / N;
-        float duree_audio = audio.frames() / audio.samplerate();
-        *ptr_timer = pow(10, 3) * duree_audio / *ptr_max_increment;
+        int taille_audio = (int)audio.frames();
+        *ptr_max_increment = int(-1 + (taille_audio - N) / N);
+        float duree_audio = float(taille_audio / audio.samplerate());
+        *ptr_timer = float(pow(10, 3) * duree_audio / *ptr_max_increment);
 
         cout << "------------------------------------------------------------" << endl;
         cout << "Donnees de l'audio :" << endl;
         cout << "------------------------------------------------------------" << endl;
-        cout << "Taille de l'audio : " << audio.frames() << endl;
+        cout << "Taille de l'audio : " << taille_audio << endl;
         cout << "Frequence d'echantillonnage : " << audio.samplerate() << " Hz" << endl;
         cout << "Duree de l'audio : " << duree_audio << " secondes" << endl;
+        increment = 0;
     }
 
 
 
     // On remplit l'ARRAY avec l'audio
     audio.readf(input_buffer, audio.frames());
-    for (int i = audio.frames(); i < padded_length; i++) {
+    for (int i = (int)audio.frames(); i < padded_length; i++) {
         input_buffer[i] = 0.0f;
     }
 
@@ -254,12 +258,12 @@ GLvoid affichage() {
 
     float max[8][2];
     for (int k = 0; k < 8; k++) {
-        max[k][0] = k;
+        max[k][0] = (float)k;
         max[k][1] = moyenne[k];
     }
     //max contient l'indice et la valeur rangée par ordre décroissant par rapport à la valeur de l'amplitude
 
-    int temp[2];
+    float temp[2];
     for (int i = 0; i < 7; i++) {
         for (int j = i + 1; j < 8; j++) {
             if (max[i][1] < max[j][1]) {
