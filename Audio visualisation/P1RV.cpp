@@ -1,13 +1,10 @@
-//Peut-être faire en 3D
-//Jouer la musique en même temps
-//Pouvoir changer les audios
-//Peut-être ajouter une interface
+//Améliorer l'interface
+// //Afficher le temps, le nom de la chanson ect...
 //Comment gérer le rythme de la visualisation : pk Hymne Européen va si vite
 //Pour améliorer : mettre un autre mode de visualisation genre des barres verticales
 //Marquer des pauses quand on change de musique
 //Indiquer quelle chanson est jouée dans l'interface
 //bouton strat, stop et restart
-//Pk il faut mettre un cout absolument à la ligne 71?????
 //Mettre un délai avant de lancer la visualisation
 //Laissez le choix de la première musique
 //Mettre un délai avant de lancer la visualisation
@@ -38,17 +35,18 @@ int increment = 0;
 #define HYMNE                 1
 #define MEGAMAN               2
 #define TIME_LAPS             3
-int audiotype = TIME_LAPS;
+int audiotype = HYMNE;
 int ancienAudiotype = 0;
 
 /* Mode de visualisation */
 #define MODE1                 1
 #define MODE2                 2
+#define MODE3                 3
 int modetype = MODE1;
 
 float timer = 0.;
 float* ptr_timer = &timer;
-int max_increment = 100;
+int max_increment = 100000;
 int* ptr_max_increment = &max_increment;
 
 
@@ -68,7 +66,7 @@ int next_pow_2(int x) {
 
 void vTimerIdle(int i)
 {
-    if(increment==1) cout << "C'est parti !" << endl;
+    if (increment == 1) cout << "C'est parti !" << endl;
     if (increment < *ptr_max_increment) increment++;
     else {
         cout << "L'ecoute est finie" << endl;
@@ -187,7 +185,7 @@ GLvoid affichage() {
     else if (audiotype == TIME_LAPS) {
         entree = "Time Lapse.wav";
     }
-    
+
     SndfileHandle audio = SndfileHandle(entree);
     if (audio.channels() != 1) {
         cout << "ERROR: Only taking mono files" << endl;
@@ -208,7 +206,7 @@ GLvoid affichage() {
         }
         Sleep(20);
         int taille_audio = (int)audio.frames();
-        *ptr_max_increment = int(-1 + (taille_audio - N) / N);
+        *ptr_max_increment = int(-1 + taille_audio / N);
         float duree_audio = float(taille_audio / audio.samplerate());
         *ptr_timer = float(pow(10, 3) * duree_audio / *ptr_max_increment);
 
@@ -321,7 +319,7 @@ GLvoid affichage() {
             }
         }
     }
-    else {
+    else if (modetype == MODE2) {
         //Ici rouge (HF) au centre et bleu (BF) aux extrémités
         for (int k = 0; k < 8; k++) {
             switch ((int)max[k][0])
