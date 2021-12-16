@@ -1,3 +1,6 @@
+
+
+//Le sleep doit correspondre au temps de mise en route de l'audio !!!!
 //Améliorer l'interface
 // //Afficher le temps, le nom de la chanson ect...
 //Comment gérer le rythme de la visualisation : pk Hymne Européen va si vite
@@ -154,6 +157,7 @@ int main(int argc, char* argv[])
     modemenu = glutCreateMenu(HandleModeMenu);
     glutAddMenuEntry("Mode 1", MODE1);
     glutAddMenuEntry("Mode 2", MODE2);
+    glutAddMenuEntry("Mode 3", MODE3);
 
     // Set up the main menu
     mainmenu = glutCreateMenu(HandleMainMenu);
