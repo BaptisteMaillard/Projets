@@ -1,4 +1,3 @@
-//Le sleep doit correspondre au temps de mise en route de l'audio !!!!
 //Améliorer l'interface
 // //Afficher le temps, le nom de la chanson ect...
 //Comment gérer le rythme de la visualisation : pk Hymne Européen va si vite
